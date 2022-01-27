@@ -9,15 +9,14 @@ from django.core.exceptions import PermissionDenied
 
 class PlantsView(APIView):
     def post(self, request):
-        request.data['owner'] = request.user.id
         plant = PlantSerializer(data=request.data)
         if plant.is_valid():
             plant.save()
             return Response(plant.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(plant.errors, status=status.HTTP_404_BAD_REQUEST)
-    
-    def get(self, request):
-        plants = Plant.objects.filter(owner=request.user.id)
-        data = Plant(plants, many=True).data
+            return Response(plant.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self):
+        plants = Plant.objects.all()
+        data = PlantSerializer(plants, many=True).data
         return Response(data)
